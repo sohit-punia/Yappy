@@ -32,5 +32,8 @@ It features secure authentication, friends system, instant chat, video calls, an
 
 Clone the repository:  
 ```bash
-git clone https://github.com/your-username/yappy.git
-cd yappy
+git clone https://github.com/sohit-punia/Yappy.git
+cd Yappy
+npm install
+npm start
+
