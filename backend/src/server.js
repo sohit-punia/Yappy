@@ -42,3 +42,20 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   connectDB();
 });
+
+// Keep-alive ping every 14 minutes to prevent Render free tier sleep
+const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+
+setInterval(async () => {
+  try {
+    await fetch(`${BACKEND_URL}/api/health`);
+    console.log("Keep-alive ping sent");
+  } catch (error) {
+    console.log("Keep-alive ping failed:", error.message);
+  }
+}, 14 * 60 * 1000); // 14 minutes
+
+// Health check route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
