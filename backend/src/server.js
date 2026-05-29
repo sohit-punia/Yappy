@@ -17,12 +17,11 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production"
-      ? process.env.FRONTEND_URL
-      : "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://yappy-nine.vercel.app"],
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
