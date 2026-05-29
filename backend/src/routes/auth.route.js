@@ -1,11 +1,18 @@
 import express from "express";
 import { login, logout, onboard, signup } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import rateLimit from "express-rate-limit";
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // max 20 requests per 15 mins
+  message: { message: "Too many attempts, please try again later" },
+});
 
 const router = express.Router();
 
-router.post("/signup", signup);
-router.post("/login", login);
+router.post("/signup", limiter, signup);
+router.post("/login", limiter, login);
 router.post("/logout", logout);
 
 router.post("/onboarding", protectRoute, onboard);
