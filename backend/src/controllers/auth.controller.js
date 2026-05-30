@@ -22,10 +22,10 @@ export async function signup(req, res) {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists, please use a diffrent one" });
+      return res.status(400).json({ message: "Email already exists, please use a different one" });
     }
 
-    const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
+    const idx = Math.floor(Math.random() * 100) + 1;
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
     const newUser = await User.create({
@@ -50,16 +50,15 @@ export async function signup(req, res) {
       expiresIn: "7d",
     });
 
-    
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: "none",   // ← changed from "strict"
-      secure: true,       // ← must be true when sameSite is "none"
+      sameSite: "none",
+      secure: true,
     });
 
     const { password: _, ...safeUser } = newUser.toObject();
-    res.status(201).json({ success: true, user: safeUser }); 
+    res.status(201).json({ success: true, user: safeUser, token });
   } catch (error) {
     console.log("Error in signup controller", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -86,12 +85,13 @@ export async function login(req, res) {
 
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // prevent XSS attacks,
-      sameSite: "strict", // prevent CSRF attacks
-      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
     });
 
-    res.status(200).json({ success: true, user });
+    const { password: _, ...safeUser } = user.toObject();
+    res.status(200).json({ success: true, user: safeUser, token });
   } catch (error) {
     console.log("Error in login controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -99,7 +99,11 @@ export async function login(req, res) {
 }
 
 export function logout(req, res) {
-  res.clearCookie("jwt");
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  });
   res.status(200).json({ success: true, message: "Logout successful" });
 }
 
