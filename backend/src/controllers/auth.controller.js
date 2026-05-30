@@ -50,11 +50,12 @@ export async function signup(req, res) {
       expiresIn: "7d",
     });
 
+    
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // prevent XSS attacks,
-      sameSite: "strict", // prevent CSRF attacks
-      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "none",   // ← changed from "strict"
+      secure: true,       // ← must be true when sameSite is "none"
     });
 
     const { password: _, ...safeUser } = newUser.toObject();
